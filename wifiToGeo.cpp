@@ -12,13 +12,14 @@ location_t WifiGeo::getGeoFromWifiAP() {
     Serial.println("scan start");
 
     // WiFi.scanNetworks will return the number of networks found
-    int n = WiFi.scanNetworks();
+    //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
+    int n = WiFi.scanNetworks(false, false, false, 101);
     
     Serial.println("scan done");
     if (n == 0) {
         Serial.println("no networks found");
     } else {
-        StaticJsonBuffer<200> jsonBuffer;
+        DynamicJsonBuffer jsonBuffer;
         JsonObject &root = jsonBuffer.createObject();
         JsonArray &wifiAccessPoints = root.createNestedArray("wifiAccessPoints");
 
@@ -42,7 +43,8 @@ location_t WifiGeo::getGeoFromWifiAP() {
             delay(10);
         }
         Serial.println(root.measureLength());
-        char output[200];
+        //char output[512];
+        String output;
         root.printTo(output);
         Serial.println(output);
         

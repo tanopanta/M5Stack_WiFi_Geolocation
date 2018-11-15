@@ -23,7 +23,10 @@ void setup() {
       Serial.println("Connecting to WiFi..");
     }
     Serial.println("Connected to the WiFi network");
+    unsigned long tstart = millis();
     geo.getGeoFromWifiAP();
+    unsigned long tend = millis();
+    Serial.println(tend -tstart);
 }
 
 void loop() {
