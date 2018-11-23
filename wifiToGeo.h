@@ -4,9 +4,9 @@
 #include <HTTPClient.h>
 
 typedef struct {
-    float lat = 0;
-    float lon = 0;
-    int accuracy = 0;
+    float lat = 0.0;
+    float lng = 0.0;
+    float accuracy = 0.0;
 } location_t;
 
 class WifiGeo {

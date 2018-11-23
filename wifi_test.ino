@@ -24,7 +24,8 @@ void setup() {
     }
     Serial.println("Connected to the WiFi network");
     unsigned long tstart = millis();
-    geo.getGeoFromWifiAP();
+    location_t result = geo.getGeoFromWifiAP();
+    Serial.printf("lat:%f, lng:%f, accuracy:%f\n", result.lat, result.lng, result.accuracy);
     unsigned long tend = millis();
     Serial.println(tend -tstart);
 }

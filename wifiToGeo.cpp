@@ -10,6 +10,7 @@ WifiGeo::WifiGeo() {
 }
 location_t WifiGeo::getGeoFromWifiAP() {
     Serial.println("scan start");
+    location_t result;
 
     // WiFi.scanNetworks will return the number of networks found
     //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
@@ -52,18 +53,29 @@ location_t WifiGeo::getGeoFromWifiAP() {
         _client.addHeader("Content-Type", "application/json");
     
         //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
+
         int httpResponseCode = _client.POST(output);
-        if(httpResponseCode>0){
+        if(httpResponseCode == 200) {
+            // Allocate JsonBuffer
+            // Use arduinojson.org/assistant to compute the capacity.
+            const size_t bufferSize = 2*JSON_OBJECT_SIZE(2) + 60;
+            DynamicJsonBuffer resJsonBuffer(bufferSize);
+
             String response = _client.getString();  //Get the response to the request
+            
+            JsonObject& resRoot = resJsonBuffer.parseObject(response);
+            result.lat = resRoot["location"]["lat"]; // -22.7539192
+            result.lng = resRoot["location"]["lng"]; // -43.4371081
+            result.accuracy = resRoot["accuracy"];
+            
             Serial.println(httpResponseCode);   //Print return code
-            Serial.println(response);           //Print request answer
-        }else{
-            Serial.print("Error on sending POST: ");
+            //Serial.println(response);           //Print request answer
+        } else {
+            Serial.print("Error code: ");
             Serial.println(httpResponseCode);
         }
         _client.end();
     }
     Serial.println("");
-    location_t result;
     return result;
 }
