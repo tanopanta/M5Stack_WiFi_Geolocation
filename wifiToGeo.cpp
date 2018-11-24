@@ -9,45 +9,46 @@ WifiGeo::WifiGeo() {
     ;
 }
 location_t WifiGeo::getGeoFromWifiAP() {
-    Serial.println("scan start");
+    // Serial.println("scan start");
     location_t result;
 
     // WiFi.scanNetworks will return the number of networks found
     //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
     int n = WiFi.scanNetworks(false, false, false, 101);
     
-    Serial.println("scan done");
+    // Serial.println("scan done");
     if (n == 0) {
-        Serial.println("no networks found");
+        //Serial.println("no networks found");
     } else {
         DynamicJsonBuffer jsonBuffer;
         JsonObject &root = jsonBuffer.createObject();
         JsonArray &wifiAccessPoints = root.createNestedArray("wifiAccessPoints");
 
         
-        Serial.print(n);
-        Serial.println(" networks found");
+        // Serial.print(n);
+        // Serial.println(" networks found");
+        // 8個ぐらいあれば十分な気がする
         if(n > 8) {
           n = 8;
         }
         for (int i = 0; i < n; ++i) {
             // Print SSID and RSSI for each network found
-            Serial.print(i + 1);
-            Serial.print(": ");
-            Serial.print(WiFi.BSSIDstr(i));
-            Serial.print(" ");
-            Serial.println(WiFi.RSSI(i));
+            // Serial.print(i + 1);
+            // Serial.print(": ");
+            // Serial.print(WiFi.BSSIDstr(i));
+            // Serial.print(" ");
+            // Serial.println(WiFi.RSSI(i));
             
             JsonObject &ap = wifiAccessPoints.createNestedObject();
             ap["macAddress"] = WiFi.BSSIDstr(i);
             ap["signalStrength"] = WiFi.RSSI(i);
-            delay(10);
+            // delay(10);
         }
-        Serial.println(root.measureLength());
+        // Serial.println(root.measureLength());
         //char output[512];
         String output;
         root.printTo(output);
-        Serial.println(output);
+        // Serial.println(output);
         
         _client.begin("https://location.services.mozilla.com/v1/geolocate?key=test");
         _client.addHeader("Content-Type", "application/json");
@@ -68,14 +69,13 @@ location_t WifiGeo::getGeoFromWifiAP() {
             result.lng = resRoot["location"]["lng"]; // -43.4371081
             result.accuracy = resRoot["accuracy"];
             
-            Serial.println(httpResponseCode);   //Print return code
-            //Serial.println(response);           //Print request answer
+            // Serial.println(httpResponseCode);   //Print return code
+            // Serial.println(response);           //Print request answer
         } else {
-            Serial.print("Error code: ");
-            Serial.println(httpResponseCode);
+            // Serial.print("Error code: ");
+            // Serial.println(httpResponseCode);
         }
         _client.end();
     }
-    Serial.println("");
     return result;
 }
