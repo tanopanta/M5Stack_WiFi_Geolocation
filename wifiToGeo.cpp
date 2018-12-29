@@ -27,22 +27,24 @@ location_t WifiGeo::getGeoFromWifiAP() {
         
         // Serial.print(n);
         // Serial.println(" networks found");
-        // 8個ぐらいあれば十分な気がする
-        if(n > 8) {
-          n = 8;
-        }
+        
+        int total = 0;
+
         for (int i = 0; i < n; ++i) {
-            // Print SSID and RSSI for each network found
-            // Serial.print(i + 1);
-            // Serial.print(": ");
-            // Serial.print(WiFi.BSSIDstr(i));
-            // Serial.print(" ");
-            // Serial.println(WiFi.RSSI(i));
-            
+            // 8個ぐらいあれば十分な気がする
+            if(total > 8) {
+                break;
+            }
+            String ssid = WiFi.SSID(i);
+            if(this -> isAvoidSSID(ssid)) {
+                Serial.print("not use: ");
+                Serial.println(ssid);
+                continue;
+            }
             JsonObject &ap = wifiAccessPoints.createNestedObject();
             ap["macAddress"] = WiFi.BSSIDstr(i);
             ap["signalStrength"] = WiFi.RSSI(i);
-            // delay(10);
+            total++;
         }
         // Serial.println(root.measureLength());
         //char output[512];
@@ -65,12 +67,9 @@ location_t WifiGeo::getGeoFromWifiAP() {
             String response = _client.getString();  //Get the response to the request
             
             JsonObject& resRoot = resJsonBuffer.parseObject(response);
-            result.lat = resRoot["location"]["lat"]; // -22.7539192
-            result.lng = resRoot["location"]["lng"]; // -43.4371081
+            result.lat = resRoot["location"]["lat"];
+            result.lng = resRoot["location"]["lng"];
             result.accuracy = resRoot["accuracy"];
-            
-            // Serial.println(httpResponseCode);   //Print return code
-            // Serial.println(response);           //Print request answer
         } else {
             // Serial.print("Error code: ");
             // Serial.println(httpResponseCode);
@@ -78,4 +77,35 @@ location_t WifiGeo::getGeoFromWifiAP() {
         _client.end();
     }
     return result;
+}
+
+const int blacklistNum = 6;
+char blacklist[blacklistNum][8] = {
+    // WiMAX
+    "SPWN", 
+    "W0",
+    "wx0",
+    // ワイモバイル
+    "HWa",
+    // b-mobile他
+    "mobile",
+    // ～のiPhone他
+    "Phone"
+};
+
+// 使わないAPだったら true
+bool WifiGeo::isAvoidSSID(const String &ssid) {
+    // _nomapのオプトアウトに対応
+    if(ssid.endsWith("_nomap")) {
+        return true;
+    }
+    // モバイルWi-Fiかチェック
+    for(int i = 0; i < blacklistNum; i++) {
+        // indexOf:  一致したら場所を返す
+        if(ssid.indexOf(blacklist[i]) != -1) {
+            return true;
+        }
+    }
+
+    return false;
 }

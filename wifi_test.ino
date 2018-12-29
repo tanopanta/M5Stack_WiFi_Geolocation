@@ -12,20 +12,20 @@ void setup() {
     M5.begin();
 
     // LCD display
-    M5.Lcd.print("Hello World");
-    Serial.begin(115200);
+    M5.Lcd.print("wifi to geo");
 
-
-    delay(4000);
     WiFi.begin(ssid, password);
     while (WiFi.status() != WL_CONNECTED) { //Check for the connection
-      delay(1000);
+      delay(500);
       Serial.println("Connecting to WiFi..");
     }
     Serial.println("Connected to the WiFi network");
+    
     unsigned long tstart = millis();
+    
     location_t result = geo.getGeoFromWifiAP();
     Serial.printf("lat:%f, lng:%f, accuracy:%f\n", result.lat, result.lng, result.accuracy);
+
     unsigned long tend = millis();
     Serial.println(tend -tstart);
 }

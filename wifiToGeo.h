@@ -15,6 +15,7 @@ public:
     location_t getGeoFromWifiAP();
 protected:
     HTTPClient _client;
+    bool isAvoidSSID(const String &ssid);
 };
 
 #endif //WIFI_TO_GEO_H
