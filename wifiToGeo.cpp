@@ -46,6 +46,9 @@ location_t WifiGeo::getGeoFromWifiAP() {
             ap["signalStrength"] = WiFi.RSSI(i);
             total++;
         }
+        if(total == 0) {
+          return result;
+        }
         // Serial.println(root.measureLength());
         //char output[512];
         String output;
