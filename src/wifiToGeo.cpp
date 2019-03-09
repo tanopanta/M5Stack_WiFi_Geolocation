@@ -5,9 +5,26 @@
 
 #include "wifiToGeo.h"
 
+const char* googleURL = "https://www.googleapis.com/geolocation/v1/geolocate?key=";
+const char* mozillaURL = "https://location.services.mozilla.com/v1/geolocate?key=";
+
+
 WifiGeo::WifiGeo() {
     ;
 }
+
+bool WifiGeo::beginAPI(HTTPClient *client, const char* key, int type) {
+    
+    if(NULL == client) {
+        Serial.println("HTTP Client is not initialized.");
+        return false;
+    }
+
+    this->_client = client;
+    this->apiType = type;
+
+}
+
 location_t WifiGeo::getGeoFromWifiAP() {
     // Serial.println("scan start");
     location_t result;
@@ -15,70 +32,70 @@ location_t WifiGeo::getGeoFromWifiAP() {
     // WiFi.scanNetworks will return the number of networks found
     //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
     int n = WiFi.scanNetworks(false, false, false, 101);
-    
     // Serial.println("scan done");
     if (n == 0) {
         //Serial.println("no networks found");
-    } else {
-        DynamicJsonBuffer jsonBuffer;
-        JsonObject &root = jsonBuffer.createObject();
-        JsonArray &wifiAccessPoints = root.createNestedArray("wifiAccessPoints");
-
-        
-        // Serial.print(n);
-        // Serial.println(" networks found");
-        
-        int total = 0;
-
-        for (int i = 0; i < n; ++i) {
-            // 8個ぐらいあれば十分な気がする
-            if(total > 8) {
-                break;
-            }
-            String ssid = WiFi.SSID(i);
-            if(this -> isAvoidSSID(ssid)) {
-                Serial.print("not use: ");
-                Serial.println(ssid);
-                continue;
-            }
-            JsonObject &ap = wifiAccessPoints.createNestedObject();
-            ap["macAddress"] = WiFi.BSSIDstr(i);
-            ap["signalStrength"] = WiFi.RSSI(i);
-            total++;
-        }
-        if(total == 0) {
-          return result;
-        }
-        // Serial.println(root.measureLength());
-        //char output[512];
-        String output;
-        root.printTo(output);
-        // Serial.println(output);
-        
-        _client.begin("https://location.services.mozilla.com/v1/geolocate?key=test");
-        _client.addHeader("Content-Type", "application/json");
-    
-        //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
-
-        int httpResponseCode = _client.POST(output);
-        if(httpResponseCode == 200) {
-            // Allocate JsonBuffer
-            // Use arduinojson.org/assistant to compute the capacity.
-            const size_t bufferSize = 2*JSON_OBJECT_SIZE(2) + 60;
-            DynamicJsonBuffer resJsonBuffer(bufferSize);
-
-            String response = _client.getString();  //Get the response to the request
-            
-            JsonObject& resRoot = resJsonBuffer.parseObject(response);
-            result.lat = resRoot["location"]["lat"];
-            result.lng = resRoot["location"]["lng"];
-            result.accuracy = resRoot["accuracy"];
-        } else {
-            // Serial.print("Error code: ");
-            // Serial.println(httpResponseCode);
-        }
-        _client.end();
+        return result;
     }
+
+    DynamicJsonBuffer jsonBuffer;
+    JsonObject &root = jsonBuffer.createObject();
+    JsonArray &wifiAccessPoints = root.createNestedArray("wifiAccessPoints");
+
+    
+    // Serial.print(n);
+    // Serial.println(" networks found");
+    
+    int total = 0;
+
+    for (int i = 0; i < n; ++i) {
+        // 8個ぐらいあれば十分な気がする
+        if(total > 8) {
+            break;
+        }
+        String ssid = WiFi.SSID(i);
+        if(this -> isAvoidSSID(ssid)) {
+            Serial.print("not use: ");
+            Serial.println(ssid);
+            continue;
+        }
+        JsonObject &ap = wifiAccessPoints.createNestedObject();
+        ap["macAddress"] = WiFi.BSSIDstr(i);
+        ap["signalStrength"] = WiFi.RSSI(i);
+        total++;
+    }
+    if(total == 0) {
+        return result;
+    }
+    // Serial.println(root.measureLength());
+    //char output[512];
+    String output;
+    root.printTo(output);
+    // Serial.println(output);
+    
+    this->_client->begin("https://location.services.mozilla.com/v1/geolocate?key=test");
+    this->_client->addHeader("Content-Type", "application/json");
+
+    //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
+
+    int httpResponseCode = this->_client->POST(output);
+    if(httpResponseCode == 200) {
+        // Allocate JsonBuffer
+        // Use arduinojson.org/assistant to compute the capacity.
+        const size_t bufferSize = 2*JSON_OBJECT_SIZE(2) + 60;
+        DynamicJsonBuffer resJsonBuffer(bufferSize);
+
+        String response = this->_client->getString();  //Get the response to the request
+        
+        JsonObject& resRoot = resJsonBuffer.parseObject(response);
+        result.lat = resRoot["location"]["lat"];
+        result.lng = resRoot["location"]["lng"];
+        result.accuracy = resRoot["accuracy"];
+    } else {
+        // Serial.print("Error code: ");
+        // Serial.println(httpResponseCode);
+    }
+    this->_client->end();
     return result;
 }
 
