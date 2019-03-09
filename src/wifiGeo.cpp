@@ -38,10 +38,10 @@ location_t WifiGeo::getGeoFromWifiAP() {
     // Serial.println("scan start");
     location_t result;
 
-    // WiFi.scanNetworks will return the number of networks found
     // int16_t WiFiScanClass::scanNetworks(bool async, bool show_hidden, bool passive, uint32_t max_ms_per_chan)
     //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
-    int n = WiFi.scanNetworks(false, false, false, 101);
+    int n = WiFi.scanNetworks(false, false, true, 100);
+
     // Serial.println("scan done");
     if (n == 0) {
         //Serial.println("no networks found");
@@ -102,8 +102,8 @@ location_t WifiGeo::getGeoFromWifiAP() {
         result.lng = resRoot["location"]["lng"];
         result.accuracy = resRoot["accuracy"];
     } else {
-        // Serial.print("Error code: ");
-        // Serial.println(httpResponseCode);
+        Serial.print("Error code: ");
+        Serial.println(httpResponseCode);
     }
     this->_client->end();
     return result;
