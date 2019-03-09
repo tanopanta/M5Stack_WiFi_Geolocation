@@ -67,12 +67,19 @@ int WifiGeo::getWifiJson(String &jsonStr){
 
 location_t WifiGeo::getGeoFromWifiAP() {
     location_t result;
+    
+    if(NULL == this->_client) {
+        Serial.println("HTTP Client has not initted. Call beginAPI().");
+        return result;
+    }
+
     String json;
     int num = this->getWifiJson(json);
     if(num == 0) {
         return result;
     }
 
+    
     this->_client->begin(postUrl);
     this->_client->addHeader("Content-Type", "application/json");
 
