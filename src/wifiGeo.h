@@ -1,5 +1,5 @@
-#ifndef WIFI_TO_GEO_H
-#define WIFI_TO_GEO_H
+#ifndef WIFI_GEO_H
+#define WIFI_GEO_H
 
 #include <HTTPClient.h>
 
@@ -17,7 +17,9 @@ class WifiGeo {
 public:
     WifiGeo();
     
-    //APIを使う場合は必ず呼び出す
+    // APIを使う場合は必ず呼び出す
+    // key: APIキー
+    // type: MOZILLA_API or GOOGLE_API 
     bool beginAPI(HTTPClient *client, const char* key = "test", int type = MOZILLA_API);
 
     location_t getGeoFromWifiAP();
@@ -27,4 +29,4 @@ protected:
     String postUrl;
 };
 
-#endif //WIFI_TO_GEO_H
+#endif //WIFI_GEO_H

@@ -3,7 +3,7 @@
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
 
-#include "wifiToGeo.h"
+#include "wifiGeo.h"
 
 const char* googleURL = "https://www.googleapis.com/geolocation/v1/geolocate?key=";
 const char* mozillaURL = "https://location.services.mozilla.com/v1/geolocate?key=";
@@ -39,6 +39,7 @@ location_t WifiGeo::getGeoFromWifiAP() {
     location_t result;
 
     // WiFi.scanNetworks will return the number of networks found
+    // int16_t WiFiScanClass::scanNetworks(bool async, bool show_hidden, bool passive, uint32_t max_ms_per_chan)
     //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
     int n = WiFi.scanNetworks(false, false, false, 101);
     // Serial.println("scan done");
