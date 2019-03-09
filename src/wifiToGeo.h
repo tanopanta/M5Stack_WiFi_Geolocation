@@ -24,7 +24,7 @@ public:
 protected:
     HTTPClient *_client;
     bool isAvoidSSID(const String &ssid);
-    int apiType;
+    String postUrl;
 };
 
 #endif //WIFI_TO_GEO_H

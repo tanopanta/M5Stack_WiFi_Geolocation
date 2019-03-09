@@ -21,8 +21,17 @@ bool WifiGeo::beginAPI(HTTPClient *client, const char* key, int type) {
     }
 
     this->_client = client;
-    this->apiType = type;
-
+    switch(type) {
+        case MOZILLA_API:
+            postUrl = String(mozillaURL) + String(key);
+            break;
+        case GOOGLE_API:
+            postUrl = String(googleURL) + String(key);
+            break;
+        default:
+            Serial.println("type is MOZILLA_API or GOOGLE_API");
+            return false;
+    }
 }
 
 location_t WifiGeo::getGeoFromWifiAP() {
@@ -73,7 +82,7 @@ location_t WifiGeo::getGeoFromWifiAP() {
     root.printTo(output);
     // Serial.println(output);
     
-    this->_client->begin("https://location.services.mozilla.com/v1/geolocate?key=test");
+    this->_client->begin(postUrl);
     this->_client->addHeader("Content-Type", "application/json");
 
     //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
