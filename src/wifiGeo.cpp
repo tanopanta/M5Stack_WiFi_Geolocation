@@ -79,11 +79,8 @@ location_t WifiGeo::getGeoFromWifiAP() {
         return result;
     }
 
-    
     this->_client->begin(postUrl);
     this->_client->addHeader("Content-Type", "application/json");
-
-    //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
 
     int httpResponseCode = this->_client->POST(json);
     if(httpResponseCode == 200) {
@@ -99,7 +96,7 @@ location_t WifiGeo::getGeoFromWifiAP() {
         result.lng = resRoot["location"]["lng"];
         result.accuracy = resRoot["accuracy"];
     } else {
-        Serial.print("Error code: ");
+        Serial.print("Error!! code: ");
         Serial.println(httpResponseCode);
     }
     this->_client->end();

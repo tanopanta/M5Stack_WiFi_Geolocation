@@ -25,6 +25,7 @@ public:
     bool beginAPI(HTTPClient *client, const char* key = "test", int type = MOZILLA_API);
 
     // 周囲のAP情報をJSON形式でjsonStrに上書き
+    // 例, "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}"
     // @return 見つかったAPの数
     // jsonStr: 上書きするStringの参照
     int getWifiJson(String &jsonStr);
