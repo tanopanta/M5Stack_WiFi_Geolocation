@@ -18,9 +18,16 @@ public:
     WifiGeo();
     
     // APIを使う場合は必ず呼び出す
+    // @return 成功: true, 失敗: false
+    // client: HTTPClientのポインタ
     // key: APIキー
-    // type: MOZILLA_API or GOOGLE_API 
+    // type: MOZILLA_API or GOOGLE_API
     bool beginAPI(HTTPClient *client, const char* key = "test", int type = MOZILLA_API);
+
+    // 周囲のAP情報をJSON形式でjsonStrに上書き
+    // @return 見つかったAPの数
+    // jsonStr: 上書きするStringの参照
+    int getWifiJson(String &jsonStr);
 
     location_t getGeoFromWifiAP();
 protected:

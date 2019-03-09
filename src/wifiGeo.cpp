@@ -34,30 +34,16 @@ bool WifiGeo::beginAPI(HTTPClient *client, const char* key, int type) {
     }
 }
 
-location_t WifiGeo::getGeoFromWifiAP() {
-    // Serial.println("scan start");
-    location_t result;
-
-    // int16_t WiFiScanClass::scanNetworks(bool async, bool show_hidden, bool passive, uint32_t max_ms_per_chan)
-    //　第4引数で1チャンネル当たりの探索時間を指定 デフォルト300ms
+int WifiGeo::getWifiJson(String &jsonStr){
+    // int16_t WiFiScanClass::scanNetworks(bool async = false, bool show_hidden = false, bool passive = false, uint32_t max_ms_per_chan = 300)
     int n = WiFi.scanNetworks(false, false, true, 100);
 
-    // Serial.println("scan done");
-    if (n == 0) {
-        //Serial.println("no networks found");
-        return result;
-    }
 
     DynamicJsonBuffer jsonBuffer;
     JsonObject &root = jsonBuffer.createObject();
     JsonArray &wifiAccessPoints = root.createNestedArray("wifiAccessPoints");
 
-    
-    // Serial.print(n);
-    // Serial.println(" networks found");
-    
     int total = 0;
-
     for (int i = 0; i < n; ++i) {
         // 8個ぐらいあれば十分な気がする
         if(total > 8) {
@@ -74,21 +60,25 @@ location_t WifiGeo::getGeoFromWifiAP() {
         ap["signalStrength"] = WiFi.RSSI(i);
         total++;
     }
-    if(total == 0) {
+    root.printTo(jsonStr);
+    
+    return total;
+}
+
+location_t WifiGeo::getGeoFromWifiAP() {
+    location_t result;
+    String json;
+    int num = this->getWifiJson(json);
+    if(num == 0) {
         return result;
     }
-    // Serial.println(root.measureLength());
-    //char output[512];
-    String output;
-    root.printTo(output);
-    // Serial.println(output);
-    
+
     this->_client->begin(postUrl);
     this->_client->addHeader("Content-Type", "application/json");
 
     //char json[] = "{\"wifiAccessPoints\":[{\"macAddress\":\"E0:9D:B8:DF:5B:0E\",\"signalStrength\":-80}]}";
 
-    int httpResponseCode = this->_client->POST(output);
+    int httpResponseCode = this->_client->POST(json);
     if(httpResponseCode == 200) {
         // Allocate JsonBuffer
         // Use arduinojson.org/assistant to compute the capacity.
