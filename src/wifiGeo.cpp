@@ -83,6 +83,7 @@ location_t WifiGeo::getGeoFromWifiAP() {
     this->_client->addHeader("Content-Type", "application/json");
 
     int httpResponseCode = this->_client->POST(json);
+    
     if(httpResponseCode == 200) {
         // Allocate JsonBuffer
         // Use arduinojson.org/assistant to compute the capacity.
@@ -90,7 +91,7 @@ location_t WifiGeo::getGeoFromWifiAP() {
         DynamicJsonBuffer resJsonBuffer(bufferSize);
 
         String response = this->_client->getString();  //Get the response to the request
-        
+        //Serial.println(response);
         JsonObject& resRoot = resJsonBuffer.parseObject(response);
         result.lat = resRoot["location"]["lat"];
         result.lng = resRoot["location"]["lng"];
