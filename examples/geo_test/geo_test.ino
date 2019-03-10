@@ -24,13 +24,15 @@ void setup() {
 
     //geo.beginAPI(&httpClient, "abcdefg12345678", GOOGLE_API); // google Geolocation api
 
-    unsigned long tstart = millis();
     location_t result = geo.getGeoFromWifiAP();
     Serial.printf("lat:%f, lng:%f, accuracy:%f\n", result.lat, result.lng, result.accuracy);
 
-    unsigned long tend = millis();
-    Serial.print(tend -tstart);
-    Serial.println(" ms ");
+    
+    String json;
+    int num = geo.getWifiJson(json);
+
+    Serial.printf("%d AP\n", num);
+    Serial.println(json);
 }
 
 void loop() {
