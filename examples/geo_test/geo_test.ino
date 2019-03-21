@@ -1,7 +1,7 @@
 #include <M5Stack.h>
 #include <WiFi.h>
 #include <HTTPClient.h>
-#include "wifiGeo.h"
+#include <wifiGeo.h>
 
 const char* ssid     = "";
 const char* password = "";
